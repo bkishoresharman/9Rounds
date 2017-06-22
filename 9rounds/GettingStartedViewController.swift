@@ -15,7 +15,7 @@ class GettingStartedViewController: UIViewController,UITextFieldDelegate,UIScrol
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.automaticallyAdjustsScrollViewInsets = false;
+        
         let scrollViewWidth:CGFloat = self.scrollView!.frame.width
         let scrollViewHeight:CGFloat = self.scrollView!.frame.height
         
@@ -34,12 +34,36 @@ class GettingStartedViewController: UIViewController,UITextFieldDelegate,UIScrol
         self.scrollView?.delegate = self
         self.pageControl?.currentPage = 0
         // Do any additional setup after loading the view.
+        NotificationCenter.default.addObserver(self, selector:#selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
+        //NotificationCenter.default.addObserver(self, selector: Selector(("keyboardWillShow:")), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        //NotificationCenter.default.addObserver(self, selector: Selector(("keyboardWillHide:")), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        self.automaticallyAdjustsScrollViewInsets = false;
     }
     
     @IBAction func submitAction(sender:AnyObject){
         let storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let nxtVC = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginViewController
         self.navigationController?.pushViewController(nxtVC, animated: true)
+    }
+    
+    func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            if self.view.frame.origin.y == 0{
+                self.view.frame.origin.y -= keyboardSize.height
+            }
+        }
+    }
+    
+    func keyboardWillHide(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            if self.view.frame.origin.y != 0{
+                self.view.frame.origin.y += keyboardSize.height
+            }
+        }
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView){
@@ -65,7 +89,7 @@ class GettingStartedViewController: UIViewController,UITextFieldDelegate,UIScrol
     // MARK: - TEXTFIELD DELEGATE METHODS
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-    
+        textField.becomeFirstResponder()
     }
     
     func textFieldDidEndEditing(_ textField: UITextField, reason: UITextFieldDidEndEditingReason) {
