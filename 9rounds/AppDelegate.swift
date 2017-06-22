@@ -12,10 +12,14 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    var navi: UINavigationController?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        let storyBoard:UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let rootVC = storyBoard.instantiateViewController(withIdentifier: "GettingVC") as! GettingStartedViewController
+        navi = UINavigationController(rootViewController: rootVC)
+        self.window?.rootViewController = navi
         return true
     }
 
