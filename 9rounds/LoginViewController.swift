@@ -11,13 +11,17 @@ import UIKit
 class LoginViewController: UIViewController,UITextFieldDelegate {
     @IBOutlet var userNameTF:UITextField?
     @IBOutlet var passwordTF:UITextField?
+    var currentTextField:UITextField?
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        NotificationCenter.default.addObserver(self, selector:#selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
     }
     
     @IBAction func loginButtonAction(sender:AnyObject){
+        currentTextField?.resignFirstResponder()
         let storyBoard:UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let rootVC = storyBoard.instantiateViewController(withIdentifier: "ViewController") as! ViewController
         appDelegate.navi = UINavigationController(rootViewController: rootVC)
@@ -29,12 +33,29 @@ class LoginViewController: UIViewController,UITextFieldDelegate {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-       self.navigationController?.navigationBar.isHidden = true
+       //self.navigationController?.navigationBar.isHidden = true
+    }
+    
+    func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            if self.view.frame.origin.y == 0{
+                self.view.frame.origin.y -= keyboardSize.height
+            }
+        }
+    }
+    
+    func keyboardWillHide(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            if self.view.frame.origin.y != 0{
+                self.view.frame.origin.y += keyboardSize.height
+            }
+        }
     }
     
     // MARK: - TEXTFIELD DELEGATE Methods
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        
+        currentTextField = textField
+        textField.becomeFirstResponder()
     }
     
     func textFieldDidEndEditing(_ textField: UITextField, reason: UITextFieldDidEndEditingReason) {
